@@ -26,7 +26,6 @@ f_s    = 0.001;
 f_t    = 0.002:(0.40-0.002)/(iterMAX-1):0.40;
 a      = 0.01 :(0.50-0.01)/(iterMAX-1) :0.50;
 
-% X = [];
 Y = [];
 
 tic;
@@ -49,22 +48,12 @@ for i = 1:iterMAX
         
         %    figure;
         %    plot(abs(fftshift(fft(x))));
-        
-        % fft
-        isFFT = 1;
-        if isFFT
-            x = fft(x);
-        end
-        
-        % normalize
-%         x = [real(x),imag(x)];
+
+        x = fft(x);
         x = abs(x);
         x = reshape(x,[],1);
         x = normalize(x);
         X((i-1)*4+j) = mat2cell(x,[2000]);
-        
-        
-        
         Y = [Y;y];
         
         if mod(i,1000) == 0
@@ -116,7 +105,6 @@ layers = [ ...
     sequenceInputLayer(inputSize)
     bilstmLayer(200,'OutputMode','sequence')
     bilstmLayer(200,'OutputMode','sequence')
-   
     bilstmLayer(200,'OutputMode','last')
     fullyConnectedLayer(numClasses)
     softmaxLayer

@@ -5,8 +5,15 @@ Jet Yu, ECE, Virginia Tech
 jianyuan@vt.edu  
 
 
+# News
+(June 27) using FFT could reach accuracy 94%.  
+
+# Roadmap
+* get dataset from USRP
+
+
 # Config
-Matlab Machine Learning Toolbox  
+Matlab Machine Learning Toolbox  & GPU 
 
 
 # Generate interfer type  
