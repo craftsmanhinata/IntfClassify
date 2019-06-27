@@ -14,8 +14,14 @@
 % 3. chirp: Ac#, theta_c #, freq_s #, freq_t
 % 4. filtN: a
 
-iterMAX = 3200;
+clear all;
+close all;
+
+iterMAX = 3200*4;
 bitLen = 2000;
+
+
+
 intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
 
@@ -32,6 +38,7 @@ tic;
 for i = 1:iterMAX
     for j = 1:4
         intfType = intfName(j);
+       
         if strcmp(intfType,'awgn')
             x = randn(1, bitLen) + 1j*randn(1, bitLen);
             y = 1;
@@ -48,6 +55,29 @@ for i = 1:iterMAX
         
         %    figure;
         %    plot(abs(fftshift(fft(x))));
+        
+        
+        sps   = 4;  % sample per symbol
+        % QPSK
+        sigLen = bitLen/sps;
+        s = sign(randn(1,sigLen))+1j*sign(randn(1,sigLen));
+        % pulse shape
+        span  = 4;    % duration
+        beta  = 0.25;
+        shape = 'sqrt';
+        
+        p                 = rcosdesign(beta,span,sps,shape);
+        rCosSpec          =  fdesign.pulseshaping(sps,'Raised Cosine',...
+            'Nsym,Beta',span,0.25);
+        rCosFlt           = design ( rCosSpec );
+        rCosFlt.Numerator = rCosFlt.Numerator / max(rCosFlt.Numerator);
+        
+        upsampled = upsample( s, sps);     % upsample
+        FltDelay  = (span*sps)/2;           % shift
+        temp      = filter(rCosFlt , [ upsampled , zeros(1,FltDelay) ] );
+        s        = temp(sps*span/2+1:end);        % to be fixed
+        
+        x = x + s;
 
         x = fft(x);
         x = abs(x);
