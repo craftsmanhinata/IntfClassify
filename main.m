@@ -14,7 +14,7 @@
 % 3. chirp: Ac#, theta_c #, freq_s #, freq_t
 % 4. filtN: a
 
-iterMAX = 200;
+iterMAX = 3200;
 bitLen = 2000;
 intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
@@ -54,7 +54,7 @@ for i = 1:iterMAX
         x = [real(x),imag(x)];
         x = reshape(x,[],1);
         x = normalize(x);
-        X(i) = mat2cell(x,[4000]);
+        X((i-1)*4+j) = mat2cell(x,[4000]);
         
         
         
@@ -83,7 +83,7 @@ for i = 1:10
     Y = Y(permID);
 end 
 
-SizeTrain = floor(Size*0.80);
+SizeTrain = floor(Size*0.90);
 Xtrain = X(1:SizeTrain);
 Ytrain = Y(1:SizeTrain);
 
@@ -101,15 +101,16 @@ Ytest = Y(SizeTrain+1:Size);
 inputSize      =  4000;  %  12*13/2
 numHiddenUnits = 100;
 numClasses = 4;
-maxEpochs     = 50;
+maxEpochs     = 20;
 miniBatchSize = 300;  
 
 
 layers = [ ...
     sequenceInputLayer(inputSize)
-    bilstmLayer(numHiddenUnits,'OutputMode','sequence')
-    bilstmLayer(numHiddenUnits,'OutputMode','sequence')
-    bilstmLayer(numHiddenUnits,'OutputMode','last')
+    bilstmLayer(200,'OutputMode','sequence')
+    bilstmLayer(200,'OutputMode','sequence')
+   
+    bilstmLayer(200,'OutputMode','last')
     fullyConnectedLayer(numClasses)
     softmaxLayer
     classificationLayer];
