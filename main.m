@@ -50,11 +50,18 @@ for i = 1:iterMAX
         %    figure;
         %    plot(abs(fftshift(fft(x))));
         
+        % fft
+        isFFT = 1;
+        if isFFT
+            x = fft(x);
+        end
+        
         % normalize
-        x = [real(x),imag(x)];
+%         x = [real(x),imag(x)];
+        x = abs(x);
         x = reshape(x,[],1);
         x = normalize(x);
-        X((i-1)*4+j) = mat2cell(x,[4000]);
+        X((i-1)*4+j) = mat2cell(x,[2000]);
         
         
         
@@ -98,7 +105,7 @@ Ytest = Y(SizeTrain+1:Size);
 
 
 % =======  Neural Network ===========
-inputSize      =  4000;  %  12*13/2
+inputSize      =  2000;  %  12*13/2
 numHiddenUnits = 100;
 numClasses = 4;
 maxEpochs     = 20;
