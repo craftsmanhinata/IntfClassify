@@ -26,7 +26,7 @@ intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
 
 % --- intference setting --
-SNR    = -10  :(20-(-10))/(iterMAX-1)  :20;
+SNRdB    = -10  :(20-(-10))/(iterMAX-1)  :20;
 freq_c = 0.01 :(0.40-0.01)/(iterMAX-1) :0.40;
 f_s    = 0.001;
 f_t    = 0.002:(0.40-0.002)/(iterMAX-1):0.40;
@@ -40,16 +40,20 @@ for i = 1:iterMAX
         intfType = intfName(j);
        
         if strcmp(intfType,'awgn')
-            x = randn(1, bitLen) + 1j*randn(1, bitLen);
+            x = 1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
             y = 1;
         elseif strcmp(intfType,'tone')
-            x = exp(1j* 2*pi * freq_c(i) * [1:bitLen]) ;
+            x = exp(1j* 2*pi * freq_c(i) * [1:bitLen])+...
+                1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
             y = 2;
         elseif strcmp(intfType,'chirp')
-            x = myChirp(f_s,f_t,bitLen);
+            x = myChirp(f_s,f_t,bitLen)+...
+                1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
             y = 3;
         elseif strcmp(intfType,'filtN')
-            x = filter(a(i),[1 a(i)-1],randn(1,bitLen)+1j*randn(1,bitLen));
+            SIRdB = rand*20-10;
+            x = 10 * 1/sqrt(2*10^(SIRdB/10)) * filter(a(i),[1 a(i)-1],randn(1,bitLen)+1j*randn(1,bitLen))+...
+                1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
             y = 4;
         end
         
@@ -79,7 +83,7 @@ for i = 1:iterMAX
         
         x = x + s;
 
-        x = fft(x);
+        x = fftshift(fft(x));
         x = abs(x);
         x = reshape(x,[],1);
         x = normalize(x);
@@ -103,7 +107,7 @@ Y= categorical(Y);
 Size = numel(X);
 
 % permute
-for i = 1:10
+for i = 1:100
     permID = randperm(Size);
     X = X(permID);
     Y = Y(permID);
@@ -127,7 +131,7 @@ Ytest = Y(SizeTrain+1:Size);
 inputSize      =  2000;  %  12*13/2
 numHiddenUnits = 100;
 numClasses = 4;
-maxEpochs     = 20;
+maxEpochs     = 50;
 miniBatchSize = 300;  
 
 
