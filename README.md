@@ -5,7 +5,11 @@ Jet Yu, ECE, Virginia Tech
 jianyuan@vt.edu  
 
 
+# Slides
+[performance Google slides](https://docs.google.com/presentation/d/1POVndvXnNvz2-mwR2zpuVd6MISutlEGou-EAwx-jbyw/edit?usp=sharing)
+
 # News
+(June 28) using downsample could reduce computation,    
 (June 27) using FFT could reach accuracy 94%.  
 
 # Roadmap

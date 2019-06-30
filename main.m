@@ -17,13 +17,14 @@
 clear all;
 close all;
 
-iterMAX = 3200*4;
+iterMAX = 400;
 bitLen = 2000;
 
 
 
-intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
-% intfName = {'copyCat'};
+% intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
+intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
+
 numClass = length(intfName);
 
 
@@ -185,3 +186,16 @@ disp('training over!');
     'SequenceLength','longest');
 
 acc = sum(Ypred == Ytest)./numel(Ytest)
+
+Ypred = double(Ypred)';
+Ytest = double(Ytest)';
+plotConfMat(myCalConfusionMatrix(Ytest,Ypred), intfName);
+saveas(gcf,'confusionMatrix.png');
+
+
+% send email
+title = sprintf('IntfClassify acc = %.2f', acc);
+content = sprintf('numClass = %d ,maxEpochs = %d, ,miniBatchSize = %d',...
+   numClass, maxEpochs, miniBatchSize);
+attachment = {'train.png','confusionMatrix.png'};
+sendEmail(title,content,attachment);
