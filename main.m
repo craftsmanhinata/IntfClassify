@@ -17,13 +17,13 @@
 clear all;
 close all;
 
-iterMAX = 400;
+iterMAX = 3200*4;
 bitLen = 2000;
 
 
 
-% intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
-intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
+intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
+% intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
 numClass = length(intfName);
 
@@ -104,10 +104,10 @@ for i = 1:iterMAX
         x = abs(x);
         x = reshape(x,[],1);
         x = normalize(x);
-        X((i-1)*4+j) = mat2cell(x,[bitLen/d]);
+        X((i-1)*numClass+j) = mat2cell(x,[bitLen/d]);
         Y = [Y;y];
         
-        if mod((i-1)*4+j,1000) == 0
+        if mod((i-1)*numClass+j,1000) == 0
             processMsg = sprintf('data generating %.2f %%', i*100.0/(iterMAX*numClass));
             disp(processMsg);
             toc;
@@ -130,12 +130,15 @@ for i = 1:100
     Y = Y(permID);
 end 
 
-SizeTrain = floor(Size*0.90);
+SizeTrain = floor(Size*0.80);
 Xtrain = X(1:SizeTrain);
 Ytrain = Y(1:SizeTrain);
 
-Xtest = X(SizeTrain+1:Size);
-Ytest = Y(SizeTrain+1:Size);
+Xval = X(SizeTrain+1:Size*0.90);
+Yval = Y(SizeTrain+1:Size*0.90);
+
+Xtest = X(Size*0.90+1:Size);
+Ytest = Y(Size*0.90+1:Size);
 
 
 
@@ -147,16 +150,21 @@ Ytest = Y(SizeTrain+1:Size);
 % =======  Neural Network ===========
 inputSize      =  bitLen/d;  
 numHiddenUnits = 100;
-maxEpochs     = 50;
-miniBatchSize = 300;  
+maxEpochs     = 20;
+miniBatchSize = 1000;  
+validationFrequency = 3;
 
 
 layers = [ ...
     sequenceInputLayer(inputSize)
     bilstmLayer(200,'OutputMode','sequence')
+    dropoutLayer(0.20)
     bilstmLayer(200,'OutputMode','sequence')
+    dropoutLayer(0.20)
     bilstmLayer(200,'OutputMode','last')
+    dropoutLayer(0.20)
     fullyConnectedLayer(numClass)
+    dropoutLayer(0.20)
     softmaxLayer
     classificationLayer];
 
@@ -172,7 +180,8 @@ options = trainingOptions('adam', ...
     'Verbose',1, ...
     'Plots','training-progress', ...
     'InitialLearnRate',0.01,...
-    'OutputFcn',@(info)savetrainingplot(info));
+    'OutputFcn',@(info)savetrainingplot(info)...
+    );
 
 net = trainNetwork(Xtrain,Ytrain,layers,options);
 disp('training over!');
@@ -195,7 +204,7 @@ saveas(gcf,'confusionMatrix.png');
 
 % send email
 title = sprintf('IntfClassify acc = %.2f', acc);
-content = sprintf('numClass = %d ,maxEpochs = %d, ,miniBatchSize = %d',...
-   numClass, maxEpochs, miniBatchSize);
+content = sprintf('iter =%d, numClass = %d ,maxEpochs = %d, ,miniBatchSize = %d',...
+   iterMAX, numClass, maxEpochs, miniBatchSize);
 attachment = {'train.png','confusionMatrix.png'};
 sendEmail(title,content,attachment);
