@@ -18,9 +18,10 @@ Matlab Machine Learning Toolbox  & GPU
 
 # Generate interfer type  
 * awgn  
-* tone  
-* chirp  
-* filtN(filtered noise, low-passed white noise)  
+* awgn+tone  
+* awgn+chirp  
+* awgn+filtN(filtered noise, low-passed white noise) 
+* copyCat Noise, with unknown modulation and pulse shaping scheme.   
 
 # How to run
 execute `main.m` file.
