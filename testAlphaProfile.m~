@@ -1,0 +1,49 @@
+clear all;
+close all;
+
+
+Len1 = 10000;
+
+
+SNRdB = 0;
+SIRdB = 0;
+
+% ======== awgn ========
+
+x = 1/sqrt(2*10^(SNRdB/10))*(randn(1, Len1) + 1j*randn(1, Len1));
+
+
+% ======= tone =======
+bitLen = Len1;
+freq_c = 0.01;
+% x = 1/sqrt(2*10^(SIRdB/10))*exp(1j* 2*pi * freq_c * [1:bitLen])+...
+%                 1/sqrt(2*10^(SNRdB/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+
+% ====== chirp =========
+% 
+% f_s = 0.01;
+% f_t = 0.40;
+% x = 1/sqrt(2*10^(SIRdB/10))*myChirp(f_s,f_t,bitLen)+...
+%     1/sqrt(2*10^(SNRdB/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+
+
+
+
+
+L = length(x);		% signal length
+
+
+Nw = 256;			
+da = 1;        
+a1 = 51;          
+a2 = 400;
+tic;
+ap = alphaProfile(x,Nw, da,a1,a2);
+toc;
+
+figure;
+plot(ap);
+grid on;
+title('\alpha profile');
+xlabel('cyclic frequency \alpha [Hz]');
+ylabel('Maximum Cyclic Spectral Coherence');
