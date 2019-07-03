@@ -18,7 +18,9 @@ jianyuan@vt.edu
 
 
 # Config
-Matlab Machine Learning Toolbox  & GPU 
+running on ARC VT is prefered.  
+* Matlab Machine Learning Toolbox  
+* GPU 
 
 
 # Generate interfer type  
@@ -36,3 +38,8 @@ for default datasize of 16,000, data generation cost ~ 1min, and training takes 
 
 # Bibliography
 [Bibliography](./bib.md)
+
+# Code Reference
+[plot confusion matrix in Matlab](https://www.mathworks.com/matlabcentral/fileexchange/64185-plot-confusion-matrix)  
+[cyclic spectral analysis](https://www.mathworks.com/matlabcentral/fileexchange/48909-cyclic-spectral-analysis)
+

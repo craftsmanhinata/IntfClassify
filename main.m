@@ -17,7 +17,7 @@
 clear all;
 close all;
 
-iterMAX = 3200*4;
+iterMAX = 3200;
 bitLen = 2000;
 
 
@@ -101,7 +101,7 @@ for i = 1:iterMAX
         x = downsample(x,d);
 
         x = fftshift(fft(x));
-        x = abs(x);
+        x = x.*conj(x); %psd
         x = reshape(x,[],1);
         x = normalize(x);
         X((i-1)*numClass+j) = mat2cell(x,[bitLen/d]);
@@ -155,13 +155,29 @@ miniBatchSize = 1000;
 validationFrequency = 3;
 
 
+% layers = [ ...
+%     sequenceInputLayer(inputSize)
+%     bilstmLayer(200,'OutputMode','sequence')
+%     dropoutLayer(0.20)
+%     bilstmLayer(200,'OutputMode','sequence')
+%     dropoutLayer(0.20)
+%     bilstmLayer(200,'OutputMode','last')
+%     dropoutLayer(0.20)
+%     fullyConnectedLayer(numClass)
+%     dropoutLayer(0.20)
+%     softmaxLayer
+%     classificationLayer];
+
 layers = [ ...
     sequenceInputLayer(inputSize)
-    bilstmLayer(200,'OutputMode','sequence')
+%     fullyConnectedLayer(200)
+ bilstmLayer(200,'OutputMode','sequence')
     dropoutLayer(0.20)
-    bilstmLayer(200,'OutputMode','sequence')
+%     fullyConnectedLayer(200)
+ bilstmLayer(200,'OutputMode','sequence')
     dropoutLayer(0.20)
-    bilstmLayer(200,'OutputMode','last')
+%     fullyConnectedLayer(200)
+ bilstmLayer(200,'OutputMode','last')
     dropoutLayer(0.20)
     fullyConnectedLayer(numClass)
     dropoutLayer(0.20)
