@@ -17,15 +17,18 @@
 clear all;
 close all;
 
-iterMAX = 3200;
+iterMAX =3200;
 bitLen = 2000;
+maxEpochs     = 20;
 
 
 
-intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
-% intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
+% intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'...
+%     'toneChirp','toneFiltN','chirpFiltN','toneChirpFiltN'};
+intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
 numClass = length(intfName);
+inputSize      =  500; % ================
 
 
 % --- intference setting --
@@ -76,6 +79,41 @@ for i = 1:iterMAX
 %             figure;
 %             subplot(3,1,1)
 %             plot(abs(fftshift(fft(copyCat))));
+
+
+
+        elseif strcmp(intfType,'toneChirp')
+            SIRdB = rand*20-10;
+            x1 = 1/sqrt(2*10^(SIRdB/10))*exp(1j* 2*pi * freq_c(i) * [1:bitLen]);            
+            SIRdB = rand*20-10;
+            x2 = 1/sqrt(2*10^(SIRdB/10))*myChirp(f_s,f_t,bitLen);              
+            x = x1 + x2 +  1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+            y = 6;
+        elseif strcmp(intfType,'toneFiltN')
+            SIRdB = rand*20-10;
+            x1 = 1/sqrt(2*10^(SIRdB/10))*exp(1j* 2*pi * freq_c(i) * [1:bitLen]);                
+            SIRdB = rand*20-10;
+            x3 = 10 * 1/sqrt(2*10^(SIRdB/10)) * filter(a(i),[1 a(i)-1],randn(1,bitLen)+1j*randn(1,bitLen));
+            x = x1+x3 + +...
+                1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+             y = 7;
+        elseif strcmp(intfType,'chirpFiltN')
+            SIRdB = rand*20-10;
+            x2 = 1/sqrt(2*10^(SIRdB/10))*myChirp(f_s,f_t,bitLen);
+            SIRdB = rand*20-10;
+            x3 = 10 * 1/sqrt(2*10^(SIRdB/10)) * filter(a(i),[1 a(i)-1],randn(1,bitLen)+1j*randn(1,bitLen));               
+            x = x2+x3+1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+           y = 8;
+
+        elseif strcmp(intfType,'toneChirpFiltN')
+            SIRdB = rand*20-10;
+            x1 = 1/sqrt(2*10^(SIRdB/10))*exp(1j* 2*pi * freq_c(i) * [1:bitLen]);           
+            SIRdB = rand*20-10;
+            x2 = 1/sqrt(2*10^(SIRdB/10))*myChirp(f_s,f_t,bitLen);
+            SIRdB = rand*20-10;
+            x3 = 10 * 1/sqrt(2*10^(SIRdB/10)) * filter(a(i),[1 a(i)-1],randn(1,bitLen)+1j*randn(1,bitLen));               
+            x = x1 + x2 + x3 +1/sqrt(2*10^(SNRdB(i)/10))*(randn(1, bitLen) + 1j*randn(1, bitLen));
+             y = 9;
         end
         
         %    figure;
@@ -102,12 +140,22 @@ for i = 1:iterMAX
 
         x = fftshift(fft(x));
         x = x.*conj(x); %psd
+
+% alpha-profile
+        Nw = 256;
+        da = 10;
+        a1 = 51;
+        a2 = 400;
+
+%         x = alphaProfile(x,Nw, da,a1,a2);
+
+
         x = reshape(x,[],1);
         x = normalize(x);
-        X((i-1)*numClass+j) = mat2cell(x,[bitLen/d]);
+        X((i-1)*numClass+j) = mat2cell(x,[inputSize]);
         Y = [Y;y];
         
-        if mod((i-1)*numClass+j,1000) == 0
+        if mod((i-1)*numClass+j,50) == 0
             processMsg = sprintf('data generating %.2f %%', i*100.0/(iterMAX*numClass));
             disp(processMsg);
             toc;
@@ -148,10 +196,10 @@ Ytest = Y(Size*0.90+1:Size);
 
 
 % =======  Neural Network ===========
-inputSize      =  bitLen/d;  
+ 
 numHiddenUnits = 100;
-maxEpochs     = 20;
-miniBatchSize = 1000;  
+
+miniBatchSize = 3000*4;  
 validationFrequency = 3;
 
 
@@ -171,13 +219,13 @@ validationFrequency = 3;
 layers = [ ...
     sequenceInputLayer(inputSize)
 %     fullyConnectedLayer(200)
- bilstmLayer(200,'OutputMode','sequence')
+ bilstmLayer(500,'OutputMode','sequence')
     dropoutLayer(0.20)
 %     fullyConnectedLayer(200)
- bilstmLayer(200,'OutputMode','sequence')
+ bilstmLayer(500,'OutputMode','sequence')
     dropoutLayer(0.20)
 %     fullyConnectedLayer(200)
- bilstmLayer(200,'OutputMode','last')
+ bilstmLayer(500,'OutputMode','last')
     dropoutLayer(0.20)
     fullyConnectedLayer(numClass)
     dropoutLayer(0.20)
@@ -199,8 +247,11 @@ options = trainingOptions('adam', ...
     'OutputFcn',@(info)savetrainingplot(info)...
     );
 
-net = trainNetwork(Xtrain,Ytrain,layers,options);
+[net, trainInfo]  = trainNetwork(Xtrain,Ytrain,layers,options);
 disp('training over!');
+
+trainAcc = trainInfo.TrainingAccuracy;
+save('./data/trainAcc.mat','trainAcc');
 
 
 % =======  Plot ===========
@@ -222,5 +273,5 @@ saveas(gcf,'confusionMatrix.png');
 title = sprintf('IntfClassify acc = %.2f', acc);
 content = sprintf('iter =%d, numClass = %d ,maxEpochs = %d, ,miniBatchSize = %d',...
    iterMAX, numClass, maxEpochs, miniBatchSize);
-attachment = {'train.png','confusionMatrix.png'};
+attachment = {'./data/trainAcc.mat','train.png','confusionMatrix.png'};
 sendEmail(title,content,attachment);
