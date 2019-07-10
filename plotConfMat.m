@@ -39,11 +39,12 @@ title(sprintf('Accuracy: %.2f%%', 100*trace(confmat)/sum(confmat(:))));
 
 % set the colormap
 colormap(flipud(gray));
-colorbar;
+% colorbar;
 % colormap(hsv);
 
 % Create strings from the matrix values and remove spaces
-textStrings = num2str([confpercent(:), confmat(:)], '%.1f%%\n%d\n');
+% textStrings = num2str([confpercent(:), confmat(:)], '%.1f%%\n%d\n');
+ textStrings = num2str([confpercent(:)], '%.1f%%\n%d\n');
 textStrings = strtrim(cellstr(textStrings));
 
 % Create x and y coordinates for the strings and plot them

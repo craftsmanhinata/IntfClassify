@@ -17,7 +17,7 @@
 clear all;
 close all;
 
-iterMAX =3200;
+iterMAX =400;
 bitLen = 2000;
 maxEpochs     = 20;
 
@@ -151,7 +151,8 @@ for i = 1:iterMAX
 
 
         x = reshape(x,[],1);
-        x = normalize(x);
+%         x = normalize(x);
+        x = (x - mean(x))/std(x);
         X((i-1)*numClass+j) = mat2cell(x,[inputSize]);
         Y = [Y;y];
         
@@ -199,7 +200,7 @@ Ytest = Y(Size*0.90+1:Size);
  
 numHiddenUnits = 100;
 
-miniBatchSize = 3000*4;  
+miniBatchSize = 1000;  
 validationFrequency = 3;
 
 
@@ -268,10 +269,15 @@ Ytest = double(Ytest)';
 plotConfMat(myCalConfusionMatrix(Ytest,Ypred), intfName);
 saveas(gcf,'confusionMatrix.png');
 
+save('Ypred.mat','Ypred');
+save('Ytest.mat','Yptest');
+
 
 % send email
 title = sprintf('IntfClassify acc = %.2f', acc);
 content = sprintf('iter =%d, numClass = %d ,maxEpochs = %d, ,miniBatchSize = %d',...
    iterMAX, numClass, maxEpochs, miniBatchSize);
-attachment = {'./data/trainAcc.mat','train.png','confusionMatrix.png'};
+attachment = {'./data/trainAcc.mat','train.png',...
+    'Ypred.mat','Ytest.mat',...
+    'confusionMatrix.png'};
 sendEmail(title,content,attachment);
