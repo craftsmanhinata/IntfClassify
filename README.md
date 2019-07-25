@@ -10,23 +10,36 @@ jianyuan@vt.edu
 [performance Google slides](https://docs.google.com/presentation/d/1POVndvXnNvz2-mwR2zpuVd6MISutlEGou-EAwx-jbyw/edit?usp=sharing)
 
 # Latex writings
-[DySPAN2019 draft on overleaf](https://www.overleaf.com/read/ygzhcsgyqpts)
+[conference submission draft on overleaf](https://www.overleaf.com/read/ygzhcsgyqpts)
 
 # News
-(July 6) SVM imported, work pretty well  
-(July 3) alpha profile imported, but not perform well,  
+(July 11) RNN with LSTM  `mainRNN.py` implemented, % accuracy at best.   
+(July 11) DNN `mainDNN.py` implemented, 65% accuracy at best.  
+(July 6) SVM imported, work pretty well.    
+(July 3) alpha profile imported, but not perform well,    
 (June 30) copyCat pass,    
 (June 28) using downsample could reduce computation,    
 (June 27) using FFT could reach accuracy 94%.  
 
 # Roadmap
 * get dataset from USRP
+* deal with OFDM signal  
 
 
 # Config
-running on ARC VT is prefered.  
-* Matlab Machine Learning Toolbox  
-* GPU 
+running on ARC VT is prefered. 
+ * Matlab 
+   * Machine Learning Toolbox  
+   * GPU
+* python
+  * packages
+      * `tensorflow`
+      * `keras`
+      * `matlibplot`
+      * `hdf5storage`
+      * `yagmail` - send result and codes to email
+  * run `conda install conda-forge [package name]`
+  * for yagmail, run `conda install -c atddatms yagmail`, if not work and error like `conflict with subproccess2`, try `pip install yagmail`  
 
 
 # Generate interfer type  
@@ -37,7 +50,8 @@ running on ARC VT is prefered.
 * copyCat Noise, with unknown modulation and pulse shaping scheme.   
 
 # How to run
-execute `main.m` file.
+* (Matlab) execute `main.m` file.
+* (Python) run matlab file to generate data first, then `mainDNN.py` or `mainRNN.py`.
 
 # How to run SVM in matlab
 * download [libsvm](https://github.com/cjlin1/libsvm)  
@@ -63,7 +77,7 @@ for default datasize of 16,000, data generation cost ~ 1min, and training takes 
 # Code Reference
 [plot confusion matrix in Matlab](https://www.mathworks.com/matlabcentral/fileexchange/64185-plot-confusion-matrix)    
 [cyclic spectral analysis](https://www.mathworks.com/matlabcentral/fileexchange/48909-cyclic-spectral-analysis)  
-[linsvm - fast SVM](https://github.com/cjlin1/libsvm)
+[libsvm - fast SVM](https://github.com/cjlin1/libsvm)
 
 
 

@@ -35,6 +35,8 @@ from keras.utils import to_categorical
 import hdf5storage
 
 
+epochs = 40
+
 t = hdf5storage.loadmat('X.mat')
 t = t['X']
 X =np.zeros((len(t[0,:]),len(t[0,0])))
@@ -45,10 +47,17 @@ t = hdf5storage.loadmat('Y.mat')
 Y = t['Y']
 Y = to_categorical(Y)
 
-x_test  = X[:200,:]
-y_test  = Y[:200,:]
-x_train = X[201:,:]
-y_train = Y[201:,:]
+len1 = np.shape(X)
+testLen = int( len1[0]*0.10)
+
+
+batch_size = testLen  
+
+x_test  = X[:testLen,:]
+y_test  = Y[:testLen,:]
+x_train = X[testLen+1:,:]
+y_train = Y[testLen+1:,:]
+
 
 x_test = x_test[:,:,np.newaxis]
 #y_test = y_test[:,:,np.newaxis]
@@ -72,7 +81,7 @@ model = Sequential()
 
 
 model.add(LSTM(256, return_sequences=True,
-               input_shape=(500, 1)))  # returns a sequence of vectors of dimension 32
+               input_shape=(2000, 1)))  # returns a sequence of vectors of dimension 32
 model.add(LSTM(256, return_sequences=True))  # returns a sequence of vectors of dimension 32
 model.add(LSTM(256))  # return a single vector of dimension 32
 
@@ -88,8 +97,8 @@ model.compile(loss='categorical_crossentropy',
 model.summary()
 
 model.fit(x_train, y_train,
-          epochs=40,
-          batch_size=128)
+          epochs=epochs,
+          batch_size=batch_size)
 toc =  time.time()
 timeCost = toc - tic
 print( "--- Totally %s seconds ---" %(timeCost))

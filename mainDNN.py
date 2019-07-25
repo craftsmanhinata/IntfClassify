@@ -4,7 +4,17 @@
 Created on Fri Jul 12 11:09:17 2019
 
 @author: Jet
+
+
+1. TODO, lack of early stop, likely overfit
+
 """
+
+
+
+
+
+
 
 
 import time
@@ -22,11 +32,20 @@ from keras.optimizers import SGD
 # Generate dummy data
 import numpy as np
 from keras.utils import to_categorical
+import hdf5storage
 
-#x_train = np.random.random((1000, 20))
-#y_train = keras.utils.to_categorical(np.random.randint(10, size=(1000, 1)), num_classes=10)
-#x_test = np.random.random((100, 20))
-#y_test = keras.utils.to_categorical(np.random.randint(10, size=(100, 1)), num_classes=10)
+# Visualize training history
+from keras import callbacks
+from keras.callbacks import EarlyStopping
+
+#tb = callbacks.TensorBoard(log_dir='./logs', histogram_freq=10, batch_size=32,
+#                           write_graph=True, write_grads=True, write_images=False,
+#                           embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
+# Early stopping  
+early_stop = EarlyStopping(monitor='val_loss', min_delta=0, patience=6, verbose=1, mode='auto')
+
+
+epochs = 20
 
 
 t = hdf5storage.loadmat('X.mat')
@@ -39,10 +58,16 @@ t = hdf5storage.loadmat('Y.mat')
 Y = t['Y']
 Y = to_categorical(Y)
 
-x_test  = X[:200,:]
-y_test  = Y[:200,:]
-x_train = X[201:,:]
-y_train = Y[201:,:]
+len1 = np.shape(X)
+testLen = int( len1[0]*0.10)
+
+
+batch_size = testLen  
+
+x_test  = X[:testLen,:]
+y_test  = Y[:testLen,:]
+x_train = X[testLen+1:,:]
+y_train = Y[testLen+1:,:]
 
 
 
@@ -53,22 +78,32 @@ model = Sequential()
 # in the first layer, you must specify the expected input data shape:
 # here, 20-dimensional vectors.
 model.add(Dense(256, activation='relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.2))
 model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.2))
 model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.2))
 
 #model.add(Dropout(0.5))
-model.add(Dense(5, activation='softmax'))
+#model.add(Dense(5, activation='softmax'))
+model.add(Dense(6, activation='softmax'))
 
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, \
           nesterov=True)
-model.compile(loss='categorical_crossentropy',
-              optimizer=sgd,
+# ‘categorical_crossentropy’
+model.compile(loss='mse',
+              optimizer='Adam',
               metrics=['accuracy'])
 
 model.fit(x_train, y_train,
-          epochs=60,
-          batch_size=128)
+          epochs=epochs,
+          batch_size=batch_size,
+          shuffle = True,
+          validation_split=0.1, 
+          callbacks=[early_stop])
+
+model.summary()
+
 toc =  time.time()
 timeCost = toc - tic
 print( "--- Totally %s seconds ---" %(timeCost))
@@ -77,4 +112,8 @@ y_pred = model.predict(x_test)
 y_pred = np.argmax(y_pred,axis=1)
 y_test = np.argmax(y_test,axis=1)
 acc = np.sum(y_pred==y_test)*1.0/len(y_test)
-print( "--- acc %s ---" %(err))
+print( "--- acc %s ---" %(acc))
+
+import scipy.io as sio 
+sio.savemat('DNN_Ypred.mat', {'y_pred':y_pred});
+sio.savemat('DNN_Ytest.mat',{'y_test': y_test});

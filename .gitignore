@@ -7,3 +7,7 @@ plot0704b.m
 *.pdf
 plot0704.m
 *.ps
+*.m~
+*.m~
+*.local
+*.h5

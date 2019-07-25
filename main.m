@@ -17,6 +17,9 @@
 clear all;
 close all;
 
+
+dataTag = 'PSD_RNN_';
+
 iterMAX =400;
 bitLen = 2000;
 maxEpochs     = 20;
@@ -165,8 +168,8 @@ for i = 1:iterMAX
     end
 end
 
-save('X.mat','X');
-save('Y.mat','Y');
+save(strcat('./data/',dataTag,'X.mat'),'X');
+save(strcat('./data/',dataTag,'Y.mat'),'Y');
 
 Y= categorical(Y);
 
@@ -188,6 +191,12 @@ Yval = Y(SizeTrain+1:Size*0.90);
 
 Xtest = X(Size*0.90+1:Size);
 Ytest = Y(Size*0.90+1:Size);
+
+
+save(strcat('./data/',dataTag,'Xtrain.mat'),'Xtrain');
+save(strcat('./data/',dataTag,'Ytrain.mat'),'Ytrain');
+save(strcat('./data/',dataTag,'Xtest.mat'),'Xtest');
+save(strcat('./data/',dataTag,'Ytest.mat'),'Ytest');
 
 
 
@@ -269,8 +278,8 @@ Ytest = double(Ytest)';
 plotConfMat(myCalConfusionMatrix(Ytest,Ypred), intfName);
 saveas(gcf,'confusionMatrix.png');
 
-save('Ypred.mat','Ypred');
-save('Ytest.mat','Yptest');
+save(strcat('./data/',dataTag,'Ypred.mat'),'Ypred' );
+save(strcat('./data/',dataTag,'Ytest.mat'),'Yptest');
 
 
 % send email

@@ -1,4 +1,4 @@
-intfName = { 'awgn', 'tone', 'chirp', 'filtN','copyCat'};
+intfName = { 'awgn', 'tone', 'chirp', 'filtN'};
 
 
 % ====== svm main script =======
@@ -51,4 +51,4 @@ Ytest = double(testing_label_vector)';
 acc = sum(Ypred == Ytest)./numel(Ytest)
 
 plotConfMat(myCalConfusionMatrix(Ytest,Ypred), intfName);
-saveas(gcf,'confusionMatrix.png');
+saveas(gcf,'SVM_confusionMatrix.png');
