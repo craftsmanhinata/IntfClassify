@@ -11,3 +11,6 @@ plot0704.m
 *.m~
 *.local
 *.h5
+*.fig
+*.ps
+*.ps
