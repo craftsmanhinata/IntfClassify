@@ -16,7 +16,7 @@ grid on;
 
 
 % legend('N 500','N 2000', 'N 2000 downsample')
-legend('N 2000','N 2000 downsample','N 500')
+legend('L 2000','L 2000 downsample','L 500')
 xlabel('iterations');
 ylabel('training accuracy');
 grid on;
